@@ -1,18 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { storeToRefs } from 'pinia'
-import {
-  NButton,
-  NCard,
-  NDropdown,
-  NInput,
-  NLayout,
-  NLayoutContent,
-  NLayoutFooter,
-  NLayoutHeader,
-  NTag,
-  NText,
-} from 'naive-ui'
 import { useHomepageStore } from '@/stores/useHomepageStore'
 
 interface GameCard {
@@ -144,7 +132,7 @@ const formatRate = (value: number) => new Intl.NumberFormat('zh-TW').format(valu
 const getRiskTagType = (riskLevel: GameCard['riskLevel']) => {
   if (riskLevel === '低') return 'success'
   if (riskLevel === '中') return 'warning'
-  return 'error'
+  return 'danger'
 }
 
 const handleCategorySelect = (category: string) => {
@@ -154,165 +142,168 @@ const handleCategorySelect = (category: string) => {
 const accountOptions = [
   { label: '個人資料', key: 'profile' },
   { label: '設定', key: 'settings' },
-  { type: 'divider', key: 'd1' },
-  { label: '登出', key: 'signout' },
+  { label: '登出', key: 'signout', divided: true },
 ]
 
-const handleAccountSelect = (key: string | number) => {
-  if (key === 'profile' || key === 'settings' || key === 'signout') {
-    return
-  }
+const handleAccountSelect = (command: string) => {
+  void command
 }
 </script>
 
 <template>
-    <NLayout class="home-page min-h-screen" :native-scrollbar="false">
-      <div class="background-orb orb-a"></div>
-      <div class="background-orb orb-b"></div>
+  <div class="home-page min-h-screen">
+    <div class="background-orb orb-a"></div>
+    <div class="background-orb orb-b"></div>
 
-      <NLayoutHeader class="top-nav panel">
-        <div class="brand">GFX</div>
-        <nav class="nav-list" aria-label="主導覽">
-          <NButton
-            v-for="(item, idx) in navItems"
-            :key="`${item}-${idx}`"
-            class="nav-item"
-            quaternary
-            size="medium"
+    <header class="top-nav panel">
+      <div class="brand">GFX</div>
+      <nav class="nav-list" aria-label="主導覽">
+        <el-button
+          v-for="(item, idx) in navItems"
+          :key="`${item}-${idx}`"
+          class="nav-item"
+          text
+          size="default"
+        >{{ item }}</el-button>
+      </nav>
+      <el-button class="sign-btn" size="default">sign in</el-button>
+    </header>
+
+    <div class="layout-content">
+      <section class="search-strip panel" aria-label="搜尋與分類">
+        <div class="search-wrap">
+          <el-input
+            v-model="keyword"
+            class="search-field"
+            placeholder="搜尋遊戲 / 伺服器"
+            clearable
           >
-            {{ item }}
-          </NButton>
-        </nav>
-        <NButton class="sign-btn" size="medium" secondary>sign in</NButton>
-      </NLayoutHeader>
+            <template #prefix>
+              <span class="search-icon">⌕</span>
+            </template>
+          </el-input>
+        </div>
 
-      <NLayoutContent class="min-h-[800px] pb-4">
-        <section class="search-strip panel" aria-label="搜尋與分類">
-          <div class="w-full">
-            <NInput
-              v-model:value="keyword"
-              class="search-field"
-              placeholder="搜尋遊戲 / 伺服器"
-              clearable
-            >
-              <template #prefix>
-                <span class="search-icon">⌕</span>
-              </template>
-            </NInput>
+        <div class="category-list" role="tablist" aria-label="分類">
+          <el-button
+            v-for="category in categories"
+            :key="category"
+            :class="['category-chip', { active: category === activeCategory }]"
+            @click="handleCategorySelect(category)"
+            size="small"
+            text
+          >{{ category }}</el-button>
+        </div>
+
+        <el-dropdown
+          trigger="click"
+          @command="handleAccountSelect"
+          placement="bottom-end"
+        >
+          <el-button class="account-btn" aria-label="帳號選單">
+            <span class="account-avatar" aria-hidden="true">👤</span>
+            <span class="account-label">My Account</span>
+            <span class="account-caret" aria-hidden="true">⌄</span>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item
+                v-for="opt in accountOptions"
+                :key="opt.key"
+                :command="opt.key"
+                :divided="opt.divided"
+              >{{ opt.label }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </section>
+
+      <main class="content-layout">
+        <aside class="left-rail">
+          <el-tag class="rail-label" size="small" round>game item</el-tag>
+          <el-card class="spotlight panel" shadow="never">
+            <div class="thumb"></div>
+            <h3>{{ topMover.name }}</h3>
+            <p>{{ topMover.server }}</p>
+            <el-tag class="spotlight-tag" type="success" round size="small">
+              今日波動 +{{ topMover.dailyChange }}%
+            </el-tag>
+          </el-card>
+        </aside>
+
+        <el-card class="center-feed panel" shadow="never">
+          <div class="feed-header">
+            <h1>GameForex 首頁導覽</h1>
+            <p class="muted-text">即時比價、風險提示與廠商導流整合</p>
           </div>
 
-          <div class="category-list" role="tablist" aria-label="分類">
-            <NButton
-              v-for="category in categories"
-              :key="category"
-              :class="['category-chip', { active: category === activeCategory }]"
-              @click="handleCategorySelect(category)"
-              :type="category === activeCategory ? 'primary' : 'default'"
-              secondary
-              size="medium"
+          <div class="game-grid">
+            <el-card
+              v-for="game in filteredGames"
+              :key="game.id"
+              class="game-card"
+              shadow="hover"
             >
-              {{ category }}
-            </NButton>
-          </div>
-
-          <NDropdown
-            trigger="click"
-            :options="accountOptions"
-            @select="handleAccountSelect"
-            placement="bottom-end"
-          >
-            <NButton class="account-btn" aria-label="帳號選單">
-              <span class="account-avatar" aria-hidden="true">👤</span>
-              <span class="account-label">My Account</span>
-              <span class="account-caret" aria-hidden="true">⌄</span>
-            </NButton>
-          </NDropdown>
-        </section>
-
-        <main class="content-layout">
-          <aside class="left-rail">
-            <NTag class="rail-label panel" size="small" round>game item</NTag>
-            <NCard class="spotlight panel" size="small" :bordered="false">
-              <div class="thumb"></div>
-              <h3>{{ topMover.name }}</h3>
-              <p>{{ topMover.server }}</p>
-              <NTag class="spotlight-tag" type="success" round size="small"
-                >今日波動 +{{ topMover.dailyChange }}%</NTag
-              >
-            </NCard>
-          </aside>
-
-          <NCard class="center-feed panel" size="small" :bordered="false">
-            <div class="feed-header">
-              <h1>GameForex 首頁導覽</h1>
-              <NText depth="3">即時比價、風險提示與廠商導流整合</NText>
-            </div>
-
-            <div class="game-grid">
-              <NCard
-                v-for="game in filteredGames"
-                :key="game.id"
-                class="game-card"
-                size="small"
-                hoverable
-              >
+              <template #default>
                 <div class="card-cover"></div>
                 <div class="card-body">
                   <h2>{{ game.name }}</h2>
                   <p class="server">{{ game.server }}</p>
 
                   <div class="meta-row">
-                    <NText class="rate">1 TWD : {{ formatRate(game.rate) }}</NText>
+                    <span class="rate">1 TWD : {{ formatRate(game.rate) }}</span>
                     <span :class="['change', game.dailyChange >= 0 ? 'up' : 'down']">
                       {{ game.dailyChange >= 0 ? '+' : '' }}{{ game.dailyChange }}%
                     </span>
                   </div>
 
                   <div class="meta-row">
-                    <NTag :type="getRiskTagType(game.riskLevel)" size="small" round
-                      >{{ game.riskLevel }}風險</NTag
-                    >
-                    <NTag class="vendors" size="small" round>{{ game.vendorCount }} 家供應</NTag>
+                    <el-tag :type="getRiskTagType(game.riskLevel)" size="small" round>
+                      {{ game.riskLevel }}風險
+                    </el-tag>
+                    <el-tag class="vendors" size="small" round>{{ game.vendorCount }} 家供應</el-tag>
                   </div>
                 </div>
-              </NCard>
-            </div>
+              </template>
+            </el-card>
+          </div>
 
-            <div class="feed-footer">
-              <NButton class="more-btn" size="small" secondary>more game</NButton>
-            </div>
-          </NCard>
+          <div class="feed-footer">
+            <el-button class="more-btn" size="small">more game</el-button>
+          </div>
+        </el-card>
 
-          <aside class="right-rail panel">
-            <NCard class="insight-box" size="small" :bordered="false">
-              <h3>市場速報</h3>
-              <NText depth="3">高波動遊戲建議每 2 小時刷新，低波動遊戲每日更新。</NText>
-            </NCard>
-            <NCard class="insight-box" size="small" :bordered="false">
-              <h3>風險提示</h3>
-              <NText depth="3">代儲交易前請先確認遊戲政策，避免高風險伺服器操作。</NText>
-            </NCard>
-          </aside>
-        </main>
+        <aside class="right-rail panel">
+          <el-card class="insight-box" shadow="never">
+            <h3>市場速報</h3>
+            <p class="muted-text">高波動遊戲建議每 2 小時刷新，低波動遊戲每日更新。</p>
+          </el-card>
+          <el-card class="insight-box" shadow="never">
+            <h3>風險提示</h3>
+            <p class="muted-text">代儲交易前請先確認遊戲政策，避免高風險伺服器操作。</p>
+          </el-card>
+        </aside>
+      </main>
+    </div>
 
-    </NLayoutContent>
-    <NLayoutFooter class="page-footer">
-      <NText depth="3">© 2026 GameForex. Data for navigation and reference only.</NText>
-    </NLayoutFooter>
-    </NLayout>
+    <footer class="page-footer">
+      <span>© 2026 GameForex. Data for navigation and reference only.</span>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
-/* ── Layout shells ── */
+/* ── Layout shell ── */
 .home-page {
   position: relative;
   overflow: hidden;
   padding: 0 0 2rem;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
-/* ── Background orbs (complex filter + gradient — cannot use Tailwind) ── */
+/* ── Background orbs ── */
 .background-orb {
   position: absolute;
   border-radius: 999px;
@@ -335,7 +326,7 @@ const handleAccountSelect = (key: string | number) => {
   right: -120px;
 }
 
-/* ── Glass panel (backdrop-filter + rgba border) ── */
+/* ── Glass panel (shared) ── */
 .panel {
   background: rgba(18, 20, 28, 0.84);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -343,7 +334,7 @@ const handleAccountSelect = (key: string | number) => {
   backdrop-filter: blur(6px);
 }
 
-/* ── Top nav (clamp padding + animation) ── */
+/* ── Top nav ── */
 .top-nav {
   position: relative;
   z-index: 2;
@@ -356,7 +347,6 @@ const handleAccountSelect = (key: string | number) => {
   animation: rise-in 0.5s ease-out;
 }
 
-/* ── Brand block ── */
 .brand {
   background: #e86d73;
   color: #0c101a;
@@ -368,7 +358,6 @@ const handleAccountSelect = (key: string | number) => {
   letter-spacing: 0.08em;
 }
 
-/* ── Nav list (scrollbar hide) ── */
 .nav-list {
   display: flex;
   align-items: center;
@@ -376,61 +365,63 @@ const handleAccountSelect = (key: string | number) => {
   overflow-x: auto;
   scrollbar-width: none;
 }
-.nav-list::-webkit-scrollbar {
-  display: none;
-}
+.nav-list::-webkit-scrollbar { display: none; }
 
-/* ── Naive UI button overrides (CSS vars — cannot use Tailwind) ── */
-.nav-item {
+/* ── Nav buttons (el-button text mode) ── */
+.nav-item.el-button {
   color: #b4aeb3;
   font-size: 0.82rem;
   min-width: 120px;
   border-radius: 0;
   white-space: nowrap;
-  --n-color: rgba(255, 255, 255, 0.06);
-  --n-color-hover: rgba(255, 255, 255, 0.12);
-  --n-color-pressed: rgba(255, 255, 255, 0.16);
-  --n-color-focus: rgba(255, 255, 255, 0.1);
-  --n-border: 1px solid transparent;
-  --n-border-hover: 1px solid transparent;
-  --n-border-pressed: 1px solid transparent;
-  --n-border-focus: 1px solid transparent;
-  --n-text-color: #bdb0b5;
-  --n-text-color-hover: #f2f4f8;
-  --n-text-color-pressed: #f2f4f8;
-  --n-text-color-focus: #f2f4f8;
-  --n-padding: 0 14px;
-  --n-height: 38px;
+  height: 38px;
+  padding: 0 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid transparent;
 }
-.nav-item:deep(.n-button__content) {
-  width: 100%;
-  justify-content: center;
+.nav-item.el-button:hover,
+.nav-item.el-button:focus {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f2f4f8;
+  border-color: transparent;
 }
 
-.sign-btn,
-.account-btn,
-.more-btn {
+/* ── Sign-in / More buttons ── */
+.sign-btn.el-button,
+.more-btn.el-button {
   border-radius: 0;
   font-size: 0.8rem;
-  --n-height: 38px;
-  --n-padding: 0 16px;
-  --n-border: 1px solid rgba(255, 255, 255, 0.12);
-  --n-border-hover: 1px solid rgba(255, 255, 255, 0.2);
-  --n-border-focus: 1px solid rgba(255, 255, 255, 0.2);
-  --n-border-pressed: 1px solid rgba(255, 255, 255, 0.2);
-  --n-color: rgba(255, 255, 255, 0.08);
-  --n-color-hover: rgba(255, 255, 255, 0.16);
-  --n-color-focus: rgba(255, 255, 255, 0.16);
-  --n-color-pressed: rgba(255, 255, 255, 0.2);
-  --n-text-color: #e8ebf3;
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8ebf3;
+  transition:
+    transform 0.15s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
-.sign-btn:hover,
-.account-btn:hover,
-.more-btn:hover {
+.sign-btn.el-button:hover,
+.more-btn.el-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f2f4f8;
   transform: translateY(-1px);
 }
+.more-btn.el-button {
+  height: 32px;
+  font-size: 0.78rem;
+}
 
-/* ── Search strip (clamp padding + named grid) ── */
+/* ── Layout content wrapper ── */
+.layout-content {
+  position: relative;
+  z-index: 1;
+  min-height: 800px;
+  padding-bottom: 1rem;
+}
+
+/* ── Search strip ── */
 .search-strip {
   position: relative;
   z-index: 2;
@@ -444,35 +435,38 @@ const handleAccountSelect = (key: string | number) => {
   animation: rise-in 0.6s ease-out;
 }
 
-/* ── Search field (deep selector + glow focus) ── */
+.search-wrap { width: 100%; }
+
+/* ── Search field (el-input deep overrides) ── */
 .search-field {
   width: 100%;
-  transition: box-shadow 0.25s ease;
 }
-.search-field:deep(.n-input-wrapper) {
+.search-field :deep(.el-input__wrapper) {
   border-radius: 0;
-  background: rgba(245, 245, 245, 0.9);
-  border: none;
+  background: rgba(245, 245, 245, 0.92);
+  box-shadow: none;
   transition: box-shadow 0.25s ease;
 }
-.search-field:deep(.n-input-wrapper):focus-within {
+.search-field :deep(.el-input__wrapper:hover) {
+  box-shadow: none;
+}
+.search-field :deep(.el-input__wrapper.is-focus) {
   box-shadow:
     0 0 0 2px rgba(45, 212, 191, 0.45),
     0 0 14px rgba(45, 212, 191, 0.18);
 }
-.search-field:deep(.n-input__input-el) {
+.search-field :deep(.el-input__inner) {
   color: #1e2432;
 }
-.search-field:deep(.n-base-icon) {
-  color: #1e2432;
+.search-field :deep(.el-input__prefix-inner) {
+  color: #555e72;
 }
 .search-icon {
   font-size: 1.05rem;
-  color: #555e72;
   line-height: 1;
 }
 
-/* ── Category list (scrollbar hide) ── */
+/* ── Category list ── */
 .category-list {
   display: flex;
   gap: 0.4rem;
@@ -481,81 +475,75 @@ const handleAccountSelect = (key: string | number) => {
   flex-wrap: nowrap;
   scrollbar-width: none;
 }
-.category-list::-webkit-scrollbar {
-  display: none;
-}
+.category-list::-webkit-scrollbar { display: none; }
 
-/* ── Category chip (Naive UI var overrides + glow active) ── */
-.category-chip {
+/* ── Category chip ── */
+.category-chip.el-button {
   color: #bbb0b3;
   font-size: 0.78rem;
   white-space: nowrap;
   border-radius: 0;
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.05);
   transition:
     transform 0.15s ease,
-    opacity 0.15s ease;
-  --n-height: 34px;
-  --n-padding: 0 16px;
-  --n-border: 1px solid transparent;
-  --n-border-hover: 1px solid rgba(255, 255, 255, 0.18);
-  --n-border-focus: 1px solid rgba(255, 255, 255, 0.18);
-  --n-border-pressed: 1px solid rgba(255, 255, 255, 0.2);
-  --n-color: rgba(255, 255, 255, 0.05);
-  --n-color-hover: rgba(255, 255, 255, 0.12);
-  --n-color-focus: rgba(255, 255, 255, 0.12);
-  --n-color-pressed: rgba(255, 255, 255, 0.16);
-  --n-text-color: #aaa0a5;
-  --n-text-color-hover: #f0f1f5;
-  --n-text-color-pressed: #f0f1f5;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
-.category-chip:hover {
+.category-chip.el-button:hover,
+.category-chip.el-button:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f0f1f5;
   transform: translateY(-1px);
 }
-.category-chip.active {
+.category-chip.el-button.active {
   font-weight: 700;
+  background: rgba(45, 212, 191, 0.18);
+  border-color: rgba(45, 212, 191, 0.45);
+  color: #a8f5ec;
   box-shadow:
-    0 0 0 1px rgba(45, 212, 191, 0.5),
+    0 0 0 1px rgba(45, 212, 191, 0.4),
     0 0 10px rgba(45, 212, 191, 0.15);
-  --n-color: rgba(45, 212, 191, 0.18);
-  --n-color-hover: rgba(45, 212, 191, 0.24);
-  --n-color-focus: rgba(45, 212, 191, 0.24);
-  --n-color-pressed: rgba(45, 212, 191, 0.3);
-  --n-border: 1px solid rgba(45, 212, 191, 0.45);
-  --n-border-hover: 1px solid rgba(45, 212, 191, 0.6);
-  --n-text-color: #a8f5ec;
-  --n-text-color-hover: #d4faf6;
+}
+.category-chip.el-button.active:hover {
+  background: rgba(45, 212, 191, 0.24);
+  border-color: rgba(45, 212, 191, 0.6);
+  color: #d4faf6;
 }
 
-/* ── Account button (rgba border/bg + multi-transition) ── */
-.account-btn {
+/* ── Account button ── */
+.account-btn.el-button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   min-width: 148px;
   justify-self: end;
   white-space: nowrap;
-  padding: 0 14px;
   height: 38px;
+  padding: 0 14px;
   border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.07);
   color: #e0e4ef;
   font-size: 0.8rem;
-  font-family: inherit;
-  cursor: pointer;
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
     transform 0.15s ease,
     box-shadow 0.2s ease;
 }
-.account-btn:hover {
+.account-btn.el-button:hover {
   background: rgba(255, 255, 255, 0.13);
   border-color: rgba(255, 255, 255, 0.22);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  color: #f0f2f8;
 }
-.account-btn:active {
+.account-btn.el-button:active {
   transform: translateY(0);
   box-shadow: none;
 }
@@ -564,20 +552,17 @@ const handleAccountSelect = (key: string | number) => {
   line-height: 1;
   opacity: 0.85;
 }
-.account-label {
-  flex: 1;
-  text-align: left;
-}
+.account-label { flex: 1; text-align: left; }
 .account-caret {
   font-size: 0.9rem;
   opacity: 0.6;
   transition: transform 0.2s ease;
 }
-.account-btn:hover .account-caret {
+.account-btn.el-button:hover .account-caret {
   transform: translateY(2px);
 }
 
-/* ── Content layout (clamp padding + named grid) ── */
+/* ── Content layout ── */
 .content-layout {
   position: relative;
   z-index: 2;
@@ -602,11 +587,23 @@ const handleAccountSelect = (key: string | number) => {
 }
 .spotlight {
   border-radius: 10px;
-  padding: 0.7rem;
   animation: rise-in 0.65s ease-out;
 }
+.spotlight :deep(.el-card__body) {
+  padding: 0.7rem;
+}
+.spotlight h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+.spotlight p {
+  margin: 0.2rem 0 0;
+  color: #97a0b6;
+  font-size: 0.85rem;
+}
+.spotlight-tag { margin-top: 0.65rem; }
 
-/* ── Thumb (complex radial gradient) ── */
 .thumb {
   width: 100%;
   aspect-ratio: 1/1;
@@ -617,33 +614,25 @@ const handleAccountSelect = (key: string | number) => {
     radial-gradient(circle at 80% 85%, rgba(245, 158, 11, 0.4), transparent 45%), #0c1320;
   margin-bottom: 0.7rem;
 }
-.spotlight h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-.spotlight p {
-  margin: 0.2rem 0 0;
-  color: #97a0b6;
-  font-size: 0.85rem;
-}
-.spotlight-tag {
-  margin-top: 0.65rem;
-}
 
 /* ── Center feed ── */
 .center-feed {
   border-radius: 12px;
-  padding: 1rem;
   animation: rise-in 0.7s ease-out;
+}
+.center-feed :deep(.el-card__body) {
+  padding: 1rem;
 }
 .feed-header h1 {
   margin: 0;
   font-size: 1.65rem;
   letter-spacing: 0.01em;
+  color: var(--text-main);
 }
-.feed-header p {
+.muted-text {
   margin: 0.25rem 0 1rem;
   color: #9ca5b9;
+  font-size: 0.9rem;
 }
 
 /* ── Game grid ── */
@@ -660,10 +649,11 @@ const handleAccountSelect = (key: string | number) => {
 }
 .game-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(125, 211, 252, 0.45);
+  border-color: rgba(125, 211, 252, 0.45) !important;
 }
-
-/* ── Card cover (complex radial gradient) ── */
+.game-card :deep(.el-card__body) {
+  padding: 0;
+}
 .card-cover {
   aspect-ratio: 4/3;
   background:
@@ -671,14 +661,13 @@ const handleAccountSelect = (key: string | number) => {
     radial-gradient(circle at 30% 20%, rgba(125, 211, 252, 0.35), transparent 38%),
     radial-gradient(circle at 75% 72%, rgba(45, 212, 191, 0.3), transparent 40%), #0f172a;
 }
-
-/* ── Card body ── */
 .card-body {
   padding: 0.65rem 0.75rem 0.75rem;
 }
 .card-body h2 {
   margin: 0;
   font-size: 0.95rem;
+  color: var(--text-main);
 }
 .server {
   margin: 0.18rem 0 0.55rem;
@@ -691,21 +680,20 @@ const handleAccountSelect = (key: string | number) => {
   align-items: center;
   margin-top: 0.35rem;
 }
-.rate,
-.vendors {
+.rate {
   color: #c9d0df;
+  font-size: 0.78rem;
+}
+.vendors {
   font-size: 0.78rem;
 }
 .change {
   font-weight: 700;
   font-size: 0.78rem;
 }
-.change.up {
-  color: #22c55e;
-}
-.change.down {
-  color: #f87171;
-}
+.change.up { color: #22c55e; }
+.change.down { color: #f87171; }
+
 .feed-footer {
   margin-top: 0.85rem;
   display: flex;
@@ -722,25 +710,24 @@ const handleAccountSelect = (key: string | number) => {
   animation: rise-in 0.75s ease-out;
 }
 .insight-box {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+.insight-box :deep(.el-card__body) {
   padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.03);
 }
 .insight-box h3 {
   margin: 0;
   font-size: 0.95rem;
+  color: var(--text-main);
 }
-.insight-box p {
-  margin: 0.5rem 0 0;
-  font-size: 0.8rem;
-  color: #a8afc2;
-  line-height: 1.55;
-}
-.insight-box :deep(.n-text) {
+.insight-box .muted-text {
   display: block;
   margin-top: 0.5rem;
+  margin-bottom: 0;
   font-size: 0.8rem;
+  color: #a8afc2;
   line-height: 1.55;
 }
 
@@ -748,22 +735,16 @@ const handleAccountSelect = (key: string | number) => {
 .page-footer {
   position: relative;
   z-index: 2;
-  margin-top: 0rem;
   text-align: center;
   color: #8790a7;
   font-size: 0.78rem;
+  padding: 1rem;
 }
 
 /* ── Keyframes ── */
 @keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Responsive ── */

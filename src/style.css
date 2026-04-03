@@ -10,6 +10,58 @@
   --text-muted: #a3aec8;
   --accent-up: #22c55e;
   --accent-down: #f87171;
+
+  /* ── Element Plus dark theme overrides ── */
+  --el-color-primary: #0ea5e9;
+  --el-color-primary-light-3: rgba(14, 165, 233, 0.7);
+  --el-color-primary-light-5: rgba(14, 165, 233, 0.5);
+  --el-color-primary-light-7: rgba(14, 165, 233, 0.3);
+  --el-color-primary-light-8: rgba(14, 165, 233, 0.2);
+  --el-color-primary-light-9: rgba(14, 165, 233, 0.1);
+  --el-color-success: #22c55e;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #f87171;
+
+  --el-bg-color: rgba(18, 20, 28, 0.84);
+  --el-bg-color-overlay: rgba(15, 19, 30, 0.97);
+  --el-bg-color-page: transparent;
+
+  --el-text-color-primary: #eff3ff;
+  --el-text-color-regular: #c4cce0;
+  --el-text-color-secondary: #a3aec8;
+  --el-text-color-placeholder: #6b7590;
+  --el-text-color-disabled: #4a5168;
+
+  --el-border-color: rgba(255, 255, 255, 0.1);
+  --el-border-color-light: rgba(255, 255, 255, 0.07);
+  --el-border-color-lighter: rgba(255, 255, 255, 0.05);
+
+  --el-fill-color: rgba(255, 255, 255, 0.04);
+  --el-fill-color-light: rgba(255, 255, 255, 0.06);
+  --el-fill-color-blank: transparent;
+
+  --el-card-bg-color: rgba(18, 20, 28, 0.0);
+  --el-card-border-color: rgba(255, 255, 255, 0.08);
+  --el-card-padding: 1rem;
+
+  --el-button-bg-color: rgba(255, 255, 255, 0.07);
+  --el-button-text-color: #e0e4ef;
+  --el-button-border-color: rgba(255, 255, 255, 0.12);
+  --el-button-hover-bg-color: rgba(255, 255, 255, 0.13);
+  --el-button-hover-text-color: #f2f4f8;
+  --el-button-hover-border-color: rgba(255, 255, 255, 0.22);
+
+  --el-input-bg-color: rgba(240, 243, 250, 0.92);
+  --el-input-text-color: #1e2432;
+  --el-input-border-color: transparent;
+  --el-input-hover-border-color: rgba(45, 212, 191, 0.4);
+  --el-input-focus-border-color: rgba(45, 212, 191, 0.6);
+  --el-input-placeholder-color: #7a849e;
+
+  --el-dropdown-menu-bg-color: rgba(15, 19, 30, 0.97);
+  --el-dropdown-menu-border-color: rgba(255, 255, 255, 0.1);
+  --el-dropdown-menu-item-hover-fill: rgba(255, 255, 255, 0.08);
+  --el-dropdown-menu-item-hover-text-color: #f0f2f8;
 }
 
 /* ── Global body (complex radial-gradient + font — cannot use Tailwind) ── */
@@ -50,4 +102,43 @@ body {
 
 .animate-fade {
   animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* ── Element Plus global dark overrides ── */
+.el-card {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-main);
+}
+
+.el-button {
+  --el-button-bg-color: rgba(255, 255, 255, 0.07);
+  --el-button-text-color: #e0e4ef;
+  --el-button-border-color: rgba(255, 255, 255, 0.12);
+  --el-button-hover-bg-color: rgba(255, 255, 255, 0.13);
+  --el-button-hover-text-color: #f2f4f8;
+  --el-button-hover-border-color: rgba(255, 255, 255, 0.22);
+  --el-button-active-bg-color: rgba(255, 255, 255, 0.18);
+  --el-button-active-border-color: rgba(255, 255, 255, 0.25);
+  --el-button-active-text-color: #f2f4f8;
+  --el-button-disabled-bg-color: rgba(255, 255, 255, 0.04);
+  --el-button-disabled-border-color: rgba(255, 255, 255, 0.06);
+  --el-button-disabled-text-color: #4a5168;
+}
+
+/* Dropdown popper */
+.el-dropdown__popper .el-dropdown-menu {
+  background: rgba(15, 19, 30, 0.97) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.el-dropdown-menu__item {
+  color: #c4cce0 !important;
+}
+.el-dropdown-menu__item:not(.is-disabled):hover,
+.el-dropdown-menu__item:not(.is-disabled):focus {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f0f2f8 !important;
+}
+.el-dropdown-menu__item.el-dropdown-menu__item--divided::before {
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
