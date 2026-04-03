@@ -8,7 +8,7 @@ interface Game {
   history: number[];
 }
 
-const props = defineProps<{
+defineProps<{
   games: Game[];
   selectedId: string;
 }>();
